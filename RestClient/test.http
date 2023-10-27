@@ -1,0 +1,7 @@
+
+
+###
+GET http://localhost:8002/new-game/ HTTP/1.1
+
+###
+http://localhost:8002/answer/1/?answer=Fintech HTTP/1.1

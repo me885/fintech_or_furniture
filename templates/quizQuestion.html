@@ -1,0 +1,23 @@
+<div>
+    <h1 class="display-6 m-3">'{{ .Question.Question }}'</h2>
+    <h4 class="m-3">Is it a Fintech or Furniture?</h4>
+    <div class="d-flex flex-row justify-content-around mt-5 mb-3">
+        <button
+        class="btn btn-primary"
+        style="width: 30%; position: relative;"
+        hx-post='/answer/{{ .Question.Id }}/?answer=Fintech'
+        hx-target="#card">
+            Fintech
+            <span class="spinner-border spinner-border-sm htmx-indicator m-1 mx-2" id="spinner" style="position: absolute; right: 0rem;"></span>
+        </button>
+
+        <button
+        class="btn btn-primary"
+        style="width: 30%; position: relative;"
+        hx-post='/answer/{{ .Question.Id }}/?answer=Furniture'
+        hx-target="#card">
+            Furniture
+            <span class="spinner-border spinner-border-sm htmx-indicator m-1 mx-2" id="spinner" style="position: absolute; right: 0rem;"></span>
+        </button>
+    </div>
+</div>
