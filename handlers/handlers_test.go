@@ -308,6 +308,8 @@ func TestLeaderBoard(t *testing.T) {
 	game2.QuestionsAnswered = 10
 	game1.Score = 6
 	game2.Score = 8
+	game1.InProgress = false
+	game2.InProgress = false
 
 	testDb.UpdateGame(game1)
 	testDb.UpdateGame(game2)
