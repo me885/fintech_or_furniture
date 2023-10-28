@@ -1,0 +1,22 @@
+<div class="bg-dark-subtle">
+    <h1 class="display-6">
+        Leaderboard
+    </h1>
+    <table class="table table-striped border border-3 m-4">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range $game := . }}
+            <tr>
+                <td>{{ $game.PlayerName }}</td>
+                <td>{{ $game.Score }}/10</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    <a hx-boost="true" hx-target="#card" href="">Back to my result</a>
+</div>

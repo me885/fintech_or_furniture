@@ -290,3 +290,49 @@ func TestNextQuestion(t *testing.T) {
 		t.Fatal(html)
 	}
 }
+
+func TestLeaderBoard(t *testing.T) {
+	os.Remove("test.db")
+
+	req, err := http.NewRequest("GET", "/next-question/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testDb := database.InitDatabase("test.db")
+
+	game1, _ := testDb.CreateGame("testname1")
+	game2, _ := testDb.CreateGame("testname2")
+
+	game1.QuestionsAnswered = 10
+	game2.QuestionsAnswered = 10
+	game1.Score = 6
+	game2.Score = 8
+
+	testDb.UpdateGame(game1)
+	testDb.UpdateGame(game2)
+
+	handlerContext := Context{DB: testDb}
+
+	handler := http.HandlerFunc(handlerContext.Leaderboard)
+
+	resp := httptest.NewRecorder()
+	handler.ServeHTTP(resp, req)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	html := string(body)
+
+	if !strings.Contains(html, "Leaderboard") {
+		t.Fatal(html)
+	}
+	if !strings.Contains(html, "testname1") {
+		t.Fatal(html)
+	}
+	if !strings.Contains(html, "testname2") {
+		t.Fatal(html)
+	}
+}

@@ -171,3 +171,21 @@ func (r *SQLiteRepository) AllGames() ([]quiz.Game, error) {
 	}
 	return all, nil
 }
+
+func (r *SQLiteRepository) TopTenCompletedGames() ([]quiz.Game, error) {
+	rows, err := r.db.Query("SELECT * FROM games WHERE inProgress=0 ORDER BY score DESC LIMIT 10")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var all []quiz.Game
+	for rows.Next() {
+		var game quiz.Game
+		if err := rows.Scan(&game.Id, &game.PlayerName, &game.QuestionsAnswered, &game.Score, &game.InProgress); err != nil {
+			return nil, err
+		}
+		all = append(all, game)
+	}
+	return all, nil
+}

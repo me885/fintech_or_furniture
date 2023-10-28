@@ -107,6 +107,17 @@ func (context Context) NextQuestion(writer http.ResponseWriter, request *http.Re
 	template.Execute(writer, quiz.QuestionPageStruct{Question: *question, Game: *game})
 }
 
+func (context Context) Leaderboard(writer http.ResponseWriter, request *http.Request) {
+	games, err := context.DB.TopTenCompletedGames()
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	template := template.Must(template.ParseFiles("./templates/leaderboard.html"))
+	template.Execute(writer, games)
+}
+
 func getActiveGameIfAuthed(request *http.Request, db *database.SQLiteRepository) (*quiz.Game, int, string) {
 	cookie, err := request.Cookie("sessionId")
 	if err != nil {
