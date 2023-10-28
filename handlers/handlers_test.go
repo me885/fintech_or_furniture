@@ -291,10 +291,10 @@ func TestNextQuestion(t *testing.T) {
 	}
 }
 
-func TestLeaderBoard(t *testing.T) {
+func TestLeaderboard(t *testing.T) {
 	os.Remove("test.db")
 
-	req, err := http.NewRequest("GET", "/next-question/", nil)
+	req, err := http.NewRequest("GET", "/leaderboard/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

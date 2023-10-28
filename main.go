@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/answer/", handlersContext.Answer)
 	http.HandleFunc("/next-question/", handlersContext.NextQuestion)
 	http.HandleFunc("/leaderboard/", handlersContext.Leaderboard)
+	http.HandleFunc("/result/", handlersContext.EndPage)
 
 	log.Print("Now running on http://localhost:8002")
 	log.Fatal(http.ListenAndServe(":8002", nil))

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"me885/fintech-or-furniture/quiz"
 	"me885/fintech-or-furniture/quiz/database"
@@ -48,10 +49,15 @@ func (context Context) NewGame(writer http.ResponseWriter, request *http.Request
 
 func (context Context) Answer(writer http.ResponseWriter, request *http.Request) {
 
-	game, errStatus, errStr := getActiveGameIfAuthed(request, context.DB)
+	game, err := getGameIfAuthed(request, context.DB)
 
-	if errStatus != 0 {
-		http.Error(writer, errStr, errStatus)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	if !game.InProgress {
+		http.Error(writer, "Game is finished. Connot answer more questions", http.StatusUnauthorized)
 		return
 	}
 
@@ -90,10 +96,15 @@ func (context Context) Answer(writer http.ResponseWriter, request *http.Request)
 
 func (context Context) NextQuestion(writer http.ResponseWriter, request *http.Request) {
 
-	game, errStatus, errStr := getActiveGameIfAuthed(request, context.DB)
+	game, err := getGameIfAuthed(request, context.DB)
 
-	if errStatus != 0 {
-		http.Error(writer, errStr, errStatus)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	if !game.InProgress {
+		http.Error(writer, "Game is finished. Connot answer more questions", http.StatusUnauthorized)
 		return
 	}
 
@@ -118,25 +129,33 @@ func (context Context) Leaderboard(writer http.ResponseWriter, request *http.Req
 	template.Execute(writer, games)
 }
 
-func getActiveGameIfAuthed(request *http.Request, db *database.SQLiteRepository) (*quiz.Game, int, string) {
+func (context Context) EndPage(writer http.ResponseWriter, request *http.Request) {
+	game, err := getGameIfAuthed(request, context.DB)
+
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	template := template.Must(template.ParseFiles("./templates/endPage.html"))
+	template.Execute(writer, game)
+}
+
+func getGameIfAuthed(request *http.Request, db *database.SQLiteRepository) (*quiz.Game, error) {
 	cookie, err := request.Cookie("sessionId")
 	if err != nil {
-		return nil, http.StatusUnauthorized, "sessionId cookie required"
+		return nil, errors.New("sessionId cookie required")
 	}
 
 	gameId, err := uuid.Parse(cookie.Value)
 	if err != nil {
-		return nil, http.StatusUnauthorized, "sessionId should be valid uuid"
+		return nil, errors.New("sessionId should be valid uuid")
 	}
 
 	game, err := db.GetGameById(gameId)
 	if err != nil {
-		return nil, http.StatusUnauthorized, "sessionId not found"
+		return nil, errors.New("sessionId not found")
 	}
 
-	if !game.InProgress {
-		return nil, http.StatusForbidden, "Game is finished. Connot answer more questions"
-	}
-
-	return game, 0, ""
+	return game, nil
 }
