@@ -6,7 +6,8 @@
         class="btn btn-primary"
         style="width: 30%; position: relative;"
         hx-post='/answer/{{ .Question.Id }}/?answer=Fintech'
-        hx-target="#card">
+        hx-target="#card"
+        hx-swap="transition:true">
             Fintech
             <span class="spinner-border spinner-border-sm htmx-indicator m-1 mx-2" id="spinner" style="position: absolute; right: 0rem;"></span>
         </button>
@@ -15,7 +16,8 @@
         class="btn btn-primary"
         style="width: 30%; position: relative;"
         hx-post='/answer/{{ .Question.Id }}/?answer=Furniture'
-        hx-target="#card">
+        hx-target="#card"
+        hx-swap="transition:true">
             Furniture
             <span class="spinner-border spinner-border-sm htmx-indicator m-1 mx-2" id="spinner" style="position: absolute; right: 0rem;"></span>
         </button>

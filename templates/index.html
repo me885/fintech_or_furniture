@@ -24,7 +24,8 @@
                 <form 
                 hx-post="/new-game/"
                 hx-indicator="#new-game-spinner"
-                hx-target="#card">
+                hx-target="#card"
+                hx-swap="transition:true">
                     <div class="input-group mb-3 w-50 mx-auto">
                         <span class="input-group-text">Name</span>
                         <input type="text" class="form-control" name="name" id="nameid" required>
