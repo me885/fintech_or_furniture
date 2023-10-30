@@ -338,3 +338,45 @@ func TestLeaderboard(t *testing.T) {
 		t.Fatal(html)
 	}
 }
+
+func TestResult(t *testing.T) {
+	os.Remove("test.db")
+
+	req, err := http.NewRequest("POST", "/result/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testDb := database.InitDatabase("test.db")
+	game, _ := testDb.CreateGame("testname")
+
+	game.QuestionsAnswered = 10
+	game.Score = 8
+	game.InProgress = false
+
+	testDb.UpdateGame(game)
+
+	req.AddCookie(&http.Cookie{Name: "sessionId", Value: game.Id.String()})
+
+	handlerContext := Context{DB: testDb}
+
+	handler := http.HandlerFunc(handlerContext.EndPage)
+
+	resp := httptest.NewRecorder()
+	handler.ServeHTTP(resp, req)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	html := string(body)
+
+	if !strings.Contains(html, "You achieved the score of:") {
+		t.Fatal(html)
+	}
+
+	if !strings.Contains(html, "8/10") {
+		t.Fatal(html)
+	}
+}
