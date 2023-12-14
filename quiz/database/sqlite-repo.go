@@ -27,7 +27,7 @@ func NewSQLiteRepository(db *sql.DB) *SQLiteRepository {
 }
 
 func (r *SQLiteRepository) Migrate() error {
-	query := `
+	query := `--sql
     CREATE TABLE IF NOT EXISTS questions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         question TEXT NOT NULL UNIQUE,
@@ -40,10 +40,62 @@ func (r *SQLiteRepository) Migrate() error {
         score INTEGER NOT NULL,
         inProgress INTEGER NOT NULL
     );
+	CREATE TABLE IF NOT EXISTS gameQuestions(
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		gameId BLOB NOT NULL,
+		QuestionId INTEGER NOT NULL
+	)
     `
 
 	_, err := r.db.Exec(query)
 	return err
+}
+
+func (r *SQLiteRepository) AddGameQuestion(gameId uuid.UUID, questionId int64) error {
+	_, err := r.db.Exec("INSERT INTO gameQuestions(id, gameId, questionId) values(NULL,?,?)", gameId, questionId)
+	if err != nil {
+		var sqliteErr sqlite3.Error
+		if errors.As(err, &sqliteErr) {
+			if errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
+				return ErrDuplicate
+			}
+		}
+	}
+
+	return err
+}
+
+func (r *SQLiteRepository) RemoveGameQuestions(gameId uuid.UUID) error {
+	_, err := r.db.Exec("DELETE FROM gameQuestions WHERE gameId = ?", gameId)
+
+	return err
+}
+
+func (r *SQLiteRepository) GetUnansweredQuestions(gameId uuid.UUID) ([]quiz.Question, error) {
+	rows, err := r.db.Query(`--sql
+		SELECT id, question, answer
+		FROM questions
+		WHERE id NOT IN (
+			SELECT questionId
+			FROM gameQuestions
+			WHERE gameId = ?
+		)`,
+		gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var all []quiz.Question
+	for rows.Next() {
+		var question quiz.Question
+		if err := rows.Scan(&question.Id, &question.Question, &question.Answer); err != nil {
+			return nil, err
+		}
+		all = append(all, question)
+	}
+	return all, nil
 }
 
 func (r *SQLiteRepository) CreateQuestion(question quiz.Question) (*quiz.Question, error) {

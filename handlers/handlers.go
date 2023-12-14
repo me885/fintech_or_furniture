@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"log"
+	"math/rand"
 	"me885/fintech-or-furniture/quiz"
 	"me885/fintech-or-furniture/quiz/database"
 	"net/http"
@@ -32,11 +32,9 @@ func (context Context) NewGame(writer http.ResponseWriter, request *http.Request
 		return
 	}
 
-	question, err := context.DB.GetQuestionById(int64(game.QuestionsAnswered + 1))
+	question, err := GetNextQuestion(context.DB, game)
 	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
-		return
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
 
 	cookie := http.Cookie{Name: "sessionId", Value: game.Id.String(), HttpOnly: true, SameSite: http.SameSiteLaxMode, Path: "/"}
@@ -89,6 +87,8 @@ func (context Context) Answer(writer http.ResponseWriter, request *http.Request)
 	} else {
 		template := template.Must(template.ParseFiles("./templates/endPage.html"))
 		template.Execute(writer, game)
+
+		context.DB.RemoveGameQuestions(game.Id)
 	}
 
 	context.DB.UpdateGame(game)
@@ -108,10 +108,9 @@ func (context Context) NextQuestion(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	question, err := context.DB.GetQuestionById(int64(game.QuestionsAnswered + 1))
+	question, err := GetNextQuestion(context.DB, game)
 	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
 
 	template := template.Must(template.ParseFiles("./templates/quizQuestion.html"))
@@ -158,4 +157,21 @@ func getGameIfAuthed(request *http.Request, db *database.SQLiteRepository) (*qui
 	}
 
 	return game, nil
+}
+
+func GetNextQuestion(db *database.SQLiteRepository, game *quiz.Game) (*quiz.Question, error) {
+
+	questionList, err := db.GetUnansweredQuestions(game.Id)
+	if err != nil {
+		return nil, errors.New("could not access db")
+	}
+
+	question := questionList[rand.Intn(len(questionList))]
+
+	err = db.AddGameQuestion(game.Id, question.Id)
+	if err != nil {
+		return nil, errors.New("could not access db")
+	}
+
+	return &question, err
 }
