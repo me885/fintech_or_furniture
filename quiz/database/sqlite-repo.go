@@ -206,7 +206,7 @@ func (r *SQLiteRepository) UpdateGame(game *quiz.Game) (*quiz.Game, error) {
 }
 
 func (r *SQLiteRepository) AllGames() ([]quiz.Game, error) {
-	rows, err := r.db.Query("SELECT * FROM games")
+	rows, err := r.db.Query("SELECT id, playerName, questionsAnswered, score, inProgress FROM games")
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (r *SQLiteRepository) AllGames() ([]quiz.Game, error) {
 	var all []quiz.Game
 	for rows.Next() {
 		var game quiz.Game
-		if err := rows.Scan(&game.Id, &game.PlayerName, &game.QuestionsAnswered, &game.Score, &game.InProgress, &game.Created, &game.Completed); err != nil {
+		if err := rows.Scan(&game.Id, &game.PlayerName, &game.QuestionsAnswered, &game.Score, &game.InProgress); err != nil {
 			return nil, err
 		}
 		all = append(all, game)

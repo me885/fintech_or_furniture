@@ -1,13 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"me885/fintech-or-furniture/handlers"
 	"me885/fintech-or-furniture/quiz/database"
 	"net/http"
+	"time"
 )
 
 func main() {
+
+	for range time.Tick(time.Second * 10) {
+		fmt.Println("HEllo")
+	}
+
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	db := database.InitDatabase("sqlite.db")

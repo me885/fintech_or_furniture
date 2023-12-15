@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestRootPage(t *testing.T) {
@@ -294,7 +295,7 @@ func TestNextQuestion(t *testing.T) {
 func TestLeaderboard(t *testing.T) {
 	os.Remove("test.db")
 
-	req, err := http.NewRequest("GET", "/leaderboard/", nil)
+	req, err := http.NewRequest("GET", "/leaderboard/?time-select=start of day", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -310,6 +311,8 @@ func TestLeaderboard(t *testing.T) {
 	game2.Score = 8
 	game1.InProgress = false
 	game2.InProgress = false
+	game1.Completed = time.Now()
+	game2.Completed = time.Now()
 
 	testDb.UpdateGame(game1)
 	testDb.UpdateGame(game2)
