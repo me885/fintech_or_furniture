@@ -1,6 +1,10 @@
 package quiz
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Answer int64
 
@@ -21,6 +25,8 @@ type Game struct {
 	QuestionsAnswered int64
 	Score             int64
 	InProgress        bool
+	Created           time.Time
+	Completed         time.Time
 }
 
 type QuestionPageStruct struct {

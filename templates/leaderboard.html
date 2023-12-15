@@ -2,6 +2,12 @@
     <h1 class="display-6">
         Leaderboard
     </h1>
+    <label for="time-select">Show: </label>
+    <select name="time-select" id="time-select" hx-get="/leaderboard-content/" hx-target="#leaderboard-body" hx-swap="outerHTML transition:true">
+        <option value="start of day">Today</option>
+        <option value="start of month">This Month</option>
+        <option value="-1000 years">All time</option>
+    </select>
     <table class="table table-striped border border-3 my-4 mx-auto">
         <thead>
             <tr>
@@ -9,14 +15,7 @@
                 <th>Score</th>
             </tr>
         </thead>
-        <tbody>
-            {{ range $game := . }}
-            <tr>
-                <td>{{ $game.PlayerName }}</td>
-                <td>{{ $game.Score }}/10</td>
-            </tr>
-            {{ end }}
-        </tbody>
+        {{ template "content" . }}
     </table>
-    <a hx-boost="true" hx-target="#card" hx-swap="transition:true" href="/result/">Back to my result</a>
+    <button class="btn btn-small btn-primary-outline" hx-target="#card" hx-swap="transition:true" hx-get="/result/">Back to my result</button>
 </div>

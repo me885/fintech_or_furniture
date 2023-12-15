@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	db := database.InitDatabase("sqlite.db")
@@ -19,6 +18,7 @@ func main() {
 	http.HandleFunc("/answer/", handlersContext.Answer)
 	http.HandleFunc("/next-question/", handlersContext.NextQuestion)
 	http.HandleFunc("/leaderboard/", handlersContext.Leaderboard)
+	http.HandleFunc("/leaderboard-content/", handlersContext.LeaderboardTable)
 	http.HandleFunc("/result/", handlersContext.EndPage)
 
 	log.Print("Now running on http://localhost:8002")

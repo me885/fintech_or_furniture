@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -91,6 +92,8 @@ func (context Context) Answer(writer http.ResponseWriter, request *http.Request)
 		context.DB.RemoveGameQuestions(game.Id)
 	}
 
+	game.Completed = time.Now()
+
 	context.DB.UpdateGame(game)
 }
 
@@ -118,13 +121,28 @@ func (context Context) NextQuestion(writer http.ResponseWriter, request *http.Re
 }
 
 func (context Context) Leaderboard(writer http.ResponseWriter, request *http.Request) {
-	games, err := context.DB.TopTenCompletedGames()
+	time := request.URL.Query().Get("time-select")
+
+	games, err := context.DB.TopTenCompletedGames(time)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	template := template.Must(template.ParseFiles("./templates/leaderboard.html"))
+	template := template.Must(template.ParseFiles("./templates/leaderboard.html", "./templates/leaderboardBody.html"))
+	template.Execute(writer, games)
+}
+
+func (context Context) LeaderboardTable(writer http.ResponseWriter, request *http.Request) {
+	time := request.URL.Query().Get("time-select")
+
+	games, err := context.DB.TopTenCompletedGames(time)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	template := template.Must(template.ParseFiles("./templates/leaderboardTable.html", "./templates/leaderboardBody.html"))
 	template.Execute(writer, games)
 }
 

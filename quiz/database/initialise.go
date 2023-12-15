@@ -41,7 +41,6 @@ func InitDatabase(filename string) *SQLiteRepository {
 		{Question: "APA", Answer: quiz.Furniture},
 		{Question: "ANRIK", Answer: quiz.Furniture},
 		{Question: "CELEBER", Answer: quiz.Furniture},
-		{Question: "EXPEDIA", Answer: quiz.Fintech},
 		{Question: "KOBALT", Answer: quiz.Fintech},
 		{Question: "BARK", Answer: quiz.Fintech},
 		{Question: "YASSIR", Answer: quiz.Fintech},
